@@ -1712,6 +1712,19 @@ footer { background:var(--ink); padding:48px 60px; display:flex; justify-content
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     window.scrollTo(0, 0);
+
+    // Fade-in uses IntersectionObserver, but elements inside display:none are never
+    // intersecting, so they never get .visible. After the tab is shown, reveal them.
+    const panel = document.getElementById('tab-' + id);
+    if (panel) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          panel.querySelectorAll('.fade-in:not(.visible)').forEach((el, i) => {
+            setTimeout(() => el.classList.add('visible'), Math.min(i * 25, 800));
+          });
+        });
+      });
+    }
   }
 
   // Tab switching
@@ -2305,6 +2318,652 @@ footer { background:var(--ink); padding:48px 60px; display:flex; justify-content
 </script>
 </div>
 <div id="tab-aiimpact" style="display:none">
+<style id="vai-tab-scoped-styles">
+/* Framework uses the same id="dimensions" with dark-on-ink; reset for this tab only */
+#tab-aiimpact #dimensions {
+  background: var(--paper);
+  color: var(--ink);
+}
+#tab-aiimpact #dimensions .section-title {
+  color: var(--ink);
+}
+
+#tab-aiimpact {
+  --ink: #0f0e0b;
+    --paper: #f5f0e8;
+    --cream: #ede8dc;
+    --accent: #c84b2f;
+    --muted: #8a8478;
+    --dim1: #c84b2f;
+    --dim2: #2a6049;
+    --dim3: #d4a843;
+    --dim4: #4a6fa5;
+    --dim5: #7b4f8e;
+    --risk: #c0390e;
+    --risk-bg: #fdf0ec;
+    --opp: #1d7a5a;
+    --opp-bg: #eaf5f0;
+  background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  #tab-aiimpact *{ margin: 0; padding: 0; box-sizing: border-box; }
+  /* ── HEADER ── */
+  #tab-aiimpact header{
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #tab-aiimpact .header-left{
+    background: var(--ink);
+    padding: 80px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  #tab-aiimpact .header-left::after{
+    content: '';
+    position: absolute;
+    top: 0; right: -1px; bottom: 0;
+    width: 2px;
+    background: var(--accent);
+  }
+
+  #tab-aiimpact .logo-tag{
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  #tab-aiimpact .version-badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+
+  #tab-aiimpact .header-title{
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(48px, 5.5vw, 82px);
+    font-weight: 900;
+    line-height: 0.9;
+    color: var(--paper);
+    margin-bottom: 32px;
+  }
+
+  #tab-aiimpact .header-title em{ font-style: italic; color: var(--accent); }
+
+  #tab-aiimpact .header-subtitle{
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    line-height: 1.8;
+    max-width: 320px;
+  }
+
+  #tab-aiimpact .header-right{
+    background: var(--cream);
+    padding: 80px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 32px;
+  }
+
+  #tab-aiimpact .header-intro{
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--ink);
+    max-width: 420px;
+  }
+
+  #tab-aiimpact .header-intro strong{ color: var(--accent); }
+
+  /* Legend */
+  #tab-aiimpact .legend{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #tab-aiimpact .legend-title{
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  #tab-aiimpact .legend-row{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  #tab-aiimpact .legend-pip{
+    width: 12px; height: 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* dim nav */
+  #tab-aiimpact .nav-dims{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #tab-aiimpact .nav-dim{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    text-decoration: none;
+    color: var(--ink);
+    transition: all 0.2s;
+  }
+
+  #tab-aiimpact .nav-dim:hover{ padding-left: 8px; }
+
+  #tab-aiimpact .nav-dot{
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  #tab-aiimpact .nav-dim-label{
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  #tab-aiimpact .nav-dim-num{
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  #tab-aiimpact .scroll-hint{
+    position: absolute;
+    bottom: 40px;
+    left: 60px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  #tab-aiimpact .scroll-line{
+    width: 40px; height: 1px;
+    background: var(--accent);
+    animation: scrollpulse 2s infinite;
+  }
+
+  @keyframes scrollpulse {
+    0%, 100% { width: 40px; opacity: 1; }
+    50% { width: 20px; opacity: 0.5; }
+  }
+
+  /* ── SECTIONS ── */
+  #tab-aiimpact section{ padding: 100px 0; }
+
+  #tab-aiimpact .section-inner{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 60px;
+  }
+
+  #tab-aiimpact .section-label{
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  #tab-aiimpact .section-label::after{
+    content: '';
+    height: 1px;
+    width: 60px;
+    background: var(--accent);
+  }
+
+  #tab-aiimpact .section-title{
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  #tab-aiimpact .section-lead{
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--muted);
+    max-width: 640px;
+    margin-bottom: 64px;
+  }
+
+  /* ── DIMENSION SECTION ── */
+  #tab-aiimpact .dim-section{
+    padding: 80px 0;
+    border-top: 1px solid rgba(0,0,0,0.08);
+  }
+
+  #tab-aiimpact .dim-section:first-child{ border-top: none; }
+
+  #tab-aiimpact .dim-header{
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 60px;
+    align-items: start;
+    margin-bottom: 48px;
+  }
+
+  #tab-aiimpact .dim-identity{}
+
+  #tab-aiimpact .dim-num-large{
+    font-family: 'Playfair Display', serif;
+    font-size: 100px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    opacity: 0.08;
+    margin-bottom: -20px;
+    display: block;
+  }
+
+  #tab-aiimpact .dim-label{
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  #tab-aiimpact .dim-name-large{
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  #tab-aiimpact .dim-desc{
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  #tab-aiimpact .dim-overview{
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--ink);
+    padding-top: 8px;
+  }
+
+  #tab-aiimpact .dim-overview p{ margin-bottom: 16px; }
+  #tab-aiimpact .dim-overview p:last-child{ margin-bottom: 0; }
+
+  /* ── ASPECT CARDS ── */
+  #tab-aiimpact .aspects-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+  }
+
+  #tab-aiimpact .aspect-card{
+    background: white;
+    border: 1px solid rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+
+  #tab-aiimpact .aspect-header{
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+
+  #tab-aiimpact .aspect-name{
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  #tab-aiimpact .aspect-def{
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  #tab-aiimpact .aspect-body{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  #tab-aiimpact .risk-col, #tab-aiimpact .opp-col{
+    padding: 20px 24px;
+  }
+
+  #tab-aiimpact .risk-col{
+    background: var(--risk-bg);
+    border-right: 1px solid rgba(0,0,0,0.06);
+  }
+
+  #tab-aiimpact .opp-col{
+    background: var(--opp-bg);
+  }
+
+  #tab-aiimpact .col-label{
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #tab-aiimpact .col-label.risk-label{ color: var(--risk); }
+  #tab-aiimpact .col-label.opp-label{ color: var(--opp); }
+
+  #tab-aiimpact .col-label::before{
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  #tab-aiimpact .risk-label::before{ background: var(--risk); }
+  #tab-aiimpact .opp-label::before{ background: var(--opp); }
+
+  #tab-aiimpact .point-list{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #tab-aiimpact .point{
+    font-size: 13px;
+    line-height: 1.55;
+    padding-left: 14px;
+    position: relative;
+  }
+
+  #tab-aiimpact .point::before{
+    content: '→';
+    position: absolute;
+    left: 0;
+    font-size: 11px;
+  }
+
+  #tab-aiimpact .risk-col .point::before{ color: var(--risk); }
+  #tab-aiimpact .opp-col .point::before{ color: var(--opp); }
+
+  /* ── NET ASSESSMENT BAR ── */
+  #tab-aiimpact .net-bar-wrap{
+    padding: 24px 28px;
+    background: var(--cream);
+    border-top: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  #tab-aiimpact .net-label{
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  #tab-aiimpact .net-track{
+    flex: 1;
+    height: 6px;
+    background: linear-gradient(to right, var(--risk), #e8d5d0 50%, #c8dfd8, var(--opp));
+    border-radius: 3px;
+    position: relative;
+  }
+
+  #tab-aiimpact .net-needle{
+    width: 14px; height: 14px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    transition: left 0.5s ease;
+  }
+
+  #tab-aiimpact .net-verdict{
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  #tab-aiimpact .verdict-risk{ color: var(--risk); }
+  #tab-aiimpact .verdict-mixed{ color: var(--accent3, #b07800); }
+  #tab-aiimpact .verdict-opp{ color: var(--opp); }
+
+  /* ── SYNTHESIS SECTION ── */
+  #tab-aiimpact #synthesis{
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  #tab-aiimpact #synthesis .section-label{ color: var(--accent); }
+  #tab-aiimpact #synthesis .section-title{ color: var(--paper); }
+  #tab-aiimpact #synthesis .section-lead{ color: var(--muted); }
+
+  #tab-aiimpact .synthesis-grid{
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    margin-bottom: 60px;
+  }
+
+  #tab-aiimpact .syn-card{
+    padding: 28px 20px;
+    background: rgba(255,255,255,0.04);
+    border-top: 3px solid transparent;
+  }
+
+  #tab-aiimpact .syn-num{
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  #tab-aiimpact .syn-name{
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  #tab-aiimpact .syn-bar{
+    height: 4px;
+    border-radius: 2px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #tab-aiimpact .syn-fill-risk{
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: var(--risk);
+    border-radius: 2px;
+  }
+
+  #tab-aiimpact .syn-fill-opp{
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    background: var(--opp);
+    border-radius: 2px;
+  }
+
+  #tab-aiimpact .syn-verdict{
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  #tab-aiimpact .syn-note{
+    font-size: 14px;
+    line-height: 1.8;
+    color: rgba(245,240,232,0.6);
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* ── IMPLICATIONS ── */
+  #tab-aiimpact #implications{ background: var(--cream); }
+
+  #tab-aiimpact .impl-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3px;
+  }
+
+  #tab-aiimpact .impl-card{
+    background: white;
+    padding: 32px;
+    border-top: 3px solid var(--accent);
+  }
+
+  #tab-aiimpact .impl-audience{
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  #tab-aiimpact .impl-title{
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+
+  #tab-aiimpact .impl-points{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #tab-aiimpact .impl-point{
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+    padding-left: 16px;
+    position: relative;
+    border-left: 2px solid rgba(0,0,0,0.08);
+  }
+
+  /* ── FOOTER ── */
+  #tab-aiimpact footer{
+    background: var(--ink);
+    padding: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  #tab-aiimpact .footer-left{
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--paper);
+  }
+
+  #tab-aiimpact .footer-left span{ color: var(--accent); font-style: italic; }
+
+  #tab-aiimpact .footer-right{
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-align: right;
+    line-height: 2;
+  }
+
+  /* ── FADE IN ── */
+  #tab-aiimpact .fade-in{
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  #tab-aiimpact .fade-in.visible{ opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    #tab-aiimpact header{ grid-template-columns: 1fr; }
+    #tab-aiimpact .dim-header{ grid-template-columns: 1fr; gap: 24px; }
+    #tab-aiimpact .aspects-grid{ grid-template-columns: 1fr; }
+    #tab-aiimpact .aspect-body{ grid-template-columns: 1fr; }
+    #tab-aiimpact .risk-col{ border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    #tab-aiimpact .synthesis-grid{ grid-template-columns: 1fr 1fr; }
+    #tab-aiimpact .impl-grid{ grid-template-columns: 1fr; }
+    #tab-aiimpact .section-inner{ padding: 0 24px; }
+    #tab-aiimpact footer{ flex-direction: column; gap: 24px; align-items: flex-start; }
+  }
+
+</style>
 <!-- ── HEADER ── -->
 <header>
   <div class="header-left">
@@ -3388,7 +4047,7 @@ footer { background:var(--ink); padding:48px 60px; display:flex; justify-content
             <div style="display:flex;align-items:center;gap:12px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--opp);flex-shrink:0;"></div><div style="font-size:13px;color:rgba(245,240,232,0.7);">Dim 2: Meaning preserved — relational core is irreducibly human</div></div>
             <div style="display:flex;align-items:center;gap:12px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--opp);flex-shrink:0;"></div><div style="font-size:13px;color:rgba(245,240,232,0.7);">Dim 1 &amp; 3: AI can free time for higher-quality care and skill development</div></div>
             <div style="display:flex;align-items:center;gap:12px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--risk);flex-shrink:0;"></div><div style="font-size:13px;color:rgba(245,240,232,0.7);">Dim 2: Risk that AI monitoring of care interactions degrades the relationship</div></div>
-            <div style="display:flex;align-items:center;gap:12px;"><div style="width:8px;height;8px;border-radius:50%;background:var(--risk);flex-shrink:0;"></div><div style="font-size:13px;color:rgba(245,240,232,0.7);">Dim 1: Historically undervalued — AI productivity argument could fund wage rises</div></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--risk);flex-shrink:0;"></div><div style="font-size:13px;color:rgba(245,240,232,0.7);">Dim 1: Historically undervalued — AI productivity argument could fund wage rises</div></div>
           </div>
           <div style="margin-top:20px;padding:14px;background:rgba(74,111,165,0.15);border-left:2px solid var(--dim4);">
             <div style="font-size:12px;color:rgba(245,240,232,0.5);line-height:1.6;">The defining opportunity: Singapore's aging demographics mean these roles are growing in number. If AI handles administrative burden and AI productivity funds wage rises, care work could become one of the best archetypes in the post-AI labour market — but only with deliberate policy.</div>
@@ -3435,18 +4094,6 @@ footer { background:var(--ink); padding:48px 60px; display:flex; justify-content
     Economic Security · Work Quality · Development · LM Freedom · Structural Fairness
   </div>
 </footer>
-
-<script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('visible'), i * 80);
-      }
-    });
-  }, { threshold: 0.05 });
-
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-</script>
 </div>
 
 </body>
